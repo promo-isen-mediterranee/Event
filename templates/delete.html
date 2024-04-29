@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Events</title>
+</head>
+<body>
+<h1>Event List</h1>
+<ul>
+    <li>
+    <p>
+        {{ event.name }} - {{ event.date_event}}
+    </p>
+    <p>
+        Contact Objective : {{ event.contact_objective }} - Stand size : {{ event.stand_size}}
+    </p>
+        <form action="{{ url_for('delete_event', event_id=event.id) }}" method="POST">
+            <input type="submit" value="Delete">
+        </form>
+    </li>
+</ul>
+</body>
+</html>

@@ -1,0 +1,57 @@
+{% block content %}
+    <h1 style="width: 100%">{% block title %} Add a New Event (temporaire) {% endblock %}</h1>
+    <form method="post">
+        <p>
+            <label for="name">Event Name</label>
+            <input type="text" name="name">
+            </input>
+        </p>
+
+        <p>
+            <label for="stand_size">Stand Size</label>
+            <input type="text" name="stand_size">
+            </input>
+        </p>
+
+        <p>
+            <label for="contact_objective">Contact Objective</label>
+            <input type="number" name="contact_objective">
+            </input>
+        </p>
+
+        <p>
+            <label for="date_event">Date Event</label>
+            <input type="date" name="date_event">
+            </input>
+        </p>
+        <p>
+            <label for="last_name">Lastname Manager</label>
+            <input type="text" name="last_name">
+            </input>
+        </p>
+
+        <p>
+            <label for="first_name">Firstname manager</label>
+            <input type="text" name="first_name">
+            </input>
+        </p>
+        <p>
+            <label for="address">Address</label>
+            <input type="text" name="address">
+            </input>
+        </p>
+        <p>
+            <label for="city">City</label>
+            <input type="text" name="city">
+            </input>
+        </p>
+        <p>
+            <label for="room">Room (optionnal)</label>
+            <input type="text" name="room">
+            </input>
+        </p>        
+        <p>
+            <button type="submit">Register</button>
+        </p>
+    </form>
+{% endblock %}

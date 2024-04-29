@@ -1,0 +1,67 @@
+{% block content %}
+    <h1 style="width: 100%">
+        {% block title %} Edit {{ event.name }}
+        {% endblock %}
+    </h1>
+    <form method="post">
+
+        <p>
+            <label for="stand_size">Stand Size</label>
+            <input type="text" name="stand_size"
+                   value="{{ event.stand_size }}" />
+        </p>
+
+        <p>
+            <label for="contact_objective">Contact Objective</label>
+            <input type="number" name="contact_objective"
+                   value="{{ event.contact_objective }}" />
+        </p>
+
+        <p>
+            <label for="date_event">Date Event</label>
+            <input type="date" name="date_event"
+                   value="{{ event.date_event }}" />
+        </p>
+
+        <p>
+            <label for="label">Status</label>
+            <input type="text" name="label"
+                   value="{{ status.label }}" />
+        </p>
+
+        <p>
+            <label for="last_name">Lastname Manager</label>
+            <input type="text" name="last_name"
+                   value="{{item_manager.last_name }}" />
+        </p>
+
+
+        <p>
+            <label for="first_name">Firstname manager</label>
+            <input type="text" name="first_name"
+            value="{{ item_manager.first_name }}" />
+
+        </p>
+        <p>
+            <label for="address">Address</label>
+            <input type="text" name="address"
+            value="{{ location.address }}"/>
+
+        </p>
+        <p>
+            <label for="city">City</label>
+            <input type="text" name="city"
+            value="{{ location.city }}"/>
+        </p>
+        <p>
+            <label for="room">Room (optionnal)</label>
+            <input type="text" name="room"
+            value="{{ location.room if location.room else '' }}" />
+
+
+        </p>
+        <p>
+            <button type="submit">Submit</button>
+        </p>
+    </form>
+{% endblock %}
