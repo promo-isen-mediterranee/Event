@@ -1,0 +1,24 @@
+{
+  "/events/create": {
+    "name": "Salon Studyrama 78",
+    "stand_size": 45,
+    "contact_objective": 100,
+    "date_event": "2024-02-08",
+    "last_name": "OLIVIER",
+    "first_name": "Alëx",
+    "address": "Place Georges Pompidou",
+    "city": "Toulon",
+    "room": "457"
+  },
+  "/events/update/1": {
+    "stand_size": 150,
+    "contact_objective": 200,
+    "date_event": "2024-02-09",
+    "label": "Recupere",
+    "last_name": "ETAVARD",
+    "first_name": "Marc",
+    "address": "Place Georges Pompidou",
+    "city": "Toulon",
+    "room": "458"
+  }
+}

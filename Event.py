@@ -1,4 +1,4 @@
-from app import db, app
+from app import db, app, make_response, jsonify
 from Location import Location
 from Event_status import Event_status
 from Person import Person
@@ -24,7 +24,7 @@ class Event(db.Model):
     def __repr__(self):
         return f'<Event {self.name}>'
 
-    def serialize(self):
+    def json(self):
         loc = Location.query.filter_by(id=self.location_id).first()
         person = Person.query.filter_by(id=self.item_manager).first()
         return {
@@ -42,14 +42,16 @@ class Event(db.Model):
         }
 
 
-@app.route('/')
+@app.route('/events')
 def get_event_data():
-    event_list = Event.query.all()
-    serialized_events = [event.serialize() for event in event_list]
-    return serialized_events
+    try:
+        event_list = Event.query.all()
+        return make_response(jsonify([event.json() for event in event_list]), 200)
+    except:
+        return make_response(jsonify({'message': 'Error getting events'}), 500)
 
 
-@app.route('/event/<int:id>/')
+@app.route('/events/<int:id>/')
 def event(id):
     event = Event.query.get_or_404(id)
-    return event.serialize()
+    return event.json()

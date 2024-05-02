@@ -1,4 +1,4 @@
-from app import db, app
+from app import db, app, make_response, jsonify
 
 
 class Event_status(db.Model):
@@ -10,21 +10,23 @@ class Event_status(db.Model):
     def __repr__(self):
         return f'<Event_status {self.label}>'
 
-    def serialize(self):
+    def json(self):
         return {
             'id': self.id,
             'label': self.label,
         }
 
 
-@app.route('/event_status')
+@app.route('/events_status')
 def get_status_data():
-    events_status_list = Event_status.query.all()
-    serialized_events_status = [event_status.serialize() for event_status in events_status_list]
-    return serialized_events_status
+    try:
+        event__status_list = Event_status.query.all()
+        return make_response(jsonify([status.json() for status in event__status_list]), 200)
+    except:
+        return make_response(jsonify({'message': 'Error getting status'}), 500)
 
 
-@app.route('/event_status/<int:id>/')
+@app.route('/events_status/<int:id>/')
 def status(id):
     event_status = Event_status.query.get_or_404(id)
-    return event_status.serialize()
+    return event_status.json()

@@ -1,4 +1,4 @@
-from app import db, app
+from app import db, app, make_response, jsonify
 
 
 class Location(db.Model):
@@ -12,7 +12,7 @@ class Location(db.Model):
     def __repr__(self):
         return f'<Location {self.city}>'
 
-    def serialize(self):
+    def json(self):
         return {
             'id': self.id,
             'address': self.address,
@@ -23,12 +23,14 @@ class Location(db.Model):
 
 @app.route('/location')
 def get_location_data():
-    location_list = Location.query.all()
-    serialized_events = [location.serialize() for location in location_list]
-    return serialized_events
+    try:
+        location_list = Location.query.all()
+        return make_response(jsonify([loc.json() for loc in location_list]), 200)
+    except:
+        return make_response(jsonify({'message': 'Error getting locations'}), 500)
 
 
-@app.route('/location/<uuid:id>/')
+@app.route('/location/<int:id>/')
 def location(id):
     location = Location.query.get_or_404(id)
-    return location.serialize()
+    return location.json()

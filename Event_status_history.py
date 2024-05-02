@@ -1,5 +1,5 @@
 from sqlalchemy.dialects.postgresql import UUID
-from app import db, app
+from app import db, app, make_response, jsonify
 from Event_status import Event_status
 from Event import Event
 from Users import Users
@@ -16,12 +16,12 @@ class Event_status_history(db.Model):
 
     r_event_history = db.relationship(Event, backref="event_history", cascade="save-update, delete")
     r_stat_history = db.relationship(Event_status, backref="event_status_history", cascade="save-update")
-    r_user_history = db.relationship(Users, backref="users", cascade="save-update")
+    r_user_history = db.relationship(Users, backref="users_history", cascade="save-update")
 
     def __repr__(self):
         return f'<Event_status_history {self.set_on}>'
 
-    def serialize(self):
+    def json(self):
         return {
             'id': self.id,
             'status_id': self.status_id,
@@ -31,15 +31,16 @@ class Event_status_history(db.Model):
         }
 
 
-@app.route('/event_status_history')
+@app.route('/events_status_history')
 def get_event_history_data():
-    events_status_history_list = Event_status_history.query.all()
-    serialized_events_status_history = [event_status_history.serialize() for event_status_history in
-                                        events_status_history_list]
-    return serialized_events_status_history
+    try:
+        history_list = Event_status_history.query.all()
+        return make_response(jsonify([event.json() for event in history_list]), 200)
+    except:
+        return make_response(jsonify({'message': 'error getting history'}), 500)
 
 
-@app.route('/event_status_history/<int:id>/')
+@app.route('/events_status_history/<int:id>/')
 def event_history(id):
     event_status_history = Event_status_history.query.get_or_404(id)
-    return event_status_history.serialize()
+    return event_status_history.json()

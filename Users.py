@@ -1,4 +1,4 @@
-from app import db, app
+from app import db, app, make_response, jsonify
 import uuid
 from sqlalchemy.dialects.postgresql import UUID
 
@@ -12,7 +12,7 @@ class Users(db.Model):
     def __repr__(self):
         return f'<User {self.email}>'
 
-    def serialize(self):
+    def json(self):
         return {
             'id': self.id,
             'email': self.email,
@@ -21,12 +21,14 @@ class Users(db.Model):
 
 @app.route('/users')
 def get_user_data():
-    users_list = Users.query.all()
-    serialized_users = [user.serialize() for user in users_list]
-    return serialized_users
+    try:
+        users_list = Users.query.all()
+        return make_response(jsonify([user.json() for user in users_list]), 200)
+    except:
+        return make_response(jsonify({'message': 'Error getting users'}), 500)
 
 
 @app.route('/users/<int:id>/')
 def user(id):
     user = Users.query.get_or_404(id)
-    return user.serialize()
+    return user.json()

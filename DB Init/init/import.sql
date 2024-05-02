@@ -74,7 +74,7 @@ CREATE TABLE IF NOT EXISTS reserved_item (
     event_id INT REFERENCES event(id) ON UPDATE CASCADE ON DELETE CASCADE,
     quantity INT NOT NULL,
     status BOOLEAN NOT NULL,
-    reserved_on DATE NOT NULL,
+    reserved_on TIMESTAMP NOT NULL,
     reserved_by uuid REFERENCES users(id) ON UPDATE CASCADE,
     CONSTRAINT reserved_item_pkey PRIMARY KEY (item_id, event_id)
 );
@@ -93,10 +93,14 @@ set timezone='Europe/Paris';
 
 INSERT INTO location (address, city, room) VALUES ('Palais Neptune', 'Toulon', '007');
 INSERT INTO location (address, city, room) VALUES ('Palais Neptune', 'Marseille', '013');
+INSERT INTO location (address, city, room) VALUES ('Place Georges Pompidou', 'Toulon', '456');
+
 INSERT INTO users(email) VALUES ('marc.etavard@isen.yncrea.fr');
 INSERT INTO users(email) VALUES('alex.olivier@isen.yncrea.fr');
+
 INSERT INTO person(last_name, first_name) VALUES ('ETAVARD', 'Marc');
 INSERT INTO person(last_name, first_name) VALUES ('OLIVIER', 'Alëx');
+
 INSERT INTO event_status(label) VALUES ('A faire');
 INSERT INTO event_status(label) VALUES ('Pret');
 INSERT INTO event_status(label) VALUES ('Recupere');
@@ -107,8 +111,24 @@ INSERT INTO event_status(label) VALUES ('Fini');
 INSERT INTO event(name, stand_size, contact_objective, date_event, status_id, item_manager, location_id) 
 VALUES('Salon étudiant Studyrama', 100, 50, TIMESTAMP '2024-2-8', 1,
        (SELECT id FROM person WHERE last_name = 'ETAVARD'),
-       (SELECT id FROM location WHERE city = 'Toulon'));
+       (SELECT id FROM location WHERE city = 'Toulon' AND room = '007'));
 INSERT INTO event(name, stand_size, contact_objective, date_event, status_id, item_manager, location_id) 
 VALUES('Salon étudiant Studyrama', 150, 75, current_date, 1,
        (SELECT id FROM person WHERE last_name = 'OLIVIER'),
        (SELECT id FROM location WHERE city = 'Marseille'));
+
+INSERT INTO item(name) VALUES('Brochures Puissance Alpha Générale');
+INSERT INTO item(name) VALUES('Brochures Puissance Alpha Bachelors');
+INSERT INTO item(name) VALUES('Brochures Ecole FISE');
+INSERT INTO item(name) VALUES('Echarpes RDD 2024');
+
+INSERT INTO item_location(item_id, location_id, quantity) VALUES(1, 3, 280);
+INSERT INTO item_location(item_id, location_id, quantity) VALUES(1, 2, 100);
+INSERT INTO item_location(item_id, location_id, quantity) VALUES(2, 3, 320);
+INSERT INTO item_location(item_id, location_id, quantity) VALUES(3, 3, 20);
+INSERT INTO item_location(item_id, location_id, quantity) VALUES(4, 3, 100);
+
+INSERT INTO reserved_item(status,quantity,reserved_on,reserved_by,event_id,item_id)
+VALUES(True, 20, NOW()::timestamp(0), (SELECT id FROM Users WHERE email = 'marc.etavard@isen.yncrea.fr'), 1, 1)
+
+    
