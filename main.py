@@ -3,15 +3,15 @@ from sqlalchemy.sql.expression import func, text
 
 from app import db, app
 from Event import Event
-from Location import Location
+from Location import get_location_id
 from Event_status_history import Event_status_history
-from Person import Person
+from Person import get_manager_id
 from Users import Users
 from Event_status import Event_status
 
 
 
-@app.route('/events/create', methods=['POST'])
+@app.route('/events', methods=['POST'])
 def create_event():
     try:
         request_form = request.get_json()
@@ -30,23 +30,9 @@ def create_event():
         first_name = first_name[0].upper() + first_name[1:].lower()
         city = city[0].upper() + city[1:].lower()
 
-        manager = Person.query.filter_by(last_name=last_name, first_name=first_name).first()
-        if manager is None:  # si pas trouvé on l'ajoute dans la DB
-            new_manager = Person(last_name=last_name, first_name=first_name)
-            db.session.add(new_manager)
-            db.session.commit()
-            item_manager = new_manager.id
-        else:
-            item_manager = manager.id
+        item_manager = get_manager_id(last_name, first_name)
 
-        loc = Location.query.filter_by(address=address, city=city, room=room).first()
-        if loc is None:
-            new_loc = Location(id=db.session.query(func.max(Location.id) + 1), address=address, city=city, room=room)
-            db.session.add(new_loc)
-            db.session.commit()
-            location = new_loc.id
-        else:
-            location = loc.id
+        location_id = get_location_id(address, city, room)
 
 
         event = Event(id=db.session.query(func.max(Event.id) + 1),
@@ -56,18 +42,18 @@ def create_event():
                     date_event=date_event,
                     status_id= Event_status.query.filter_by(label='A faire').first().id,
                     item_manager=item_manager,
-                    location_id=location)
+                    location_id=location_id)
 
         db.session.add(event)
         db.session.commit()
 
         return make_response(jsonify({'message': 'Event created'}), 201)
 
-    except:
-        return make_response(jsonify({'message': 'Error creating event'}), 500)
+    except Exception as e:
+        return make_response(jsonify({'message': f'Error creating event, {e}'}), 500)
 
 
-@app.route('/events/update/<int:event_id>', methods=['PUT'])
+@app.route('/events/<int:event_id>/', methods=['PUT'])
 def update_event(event_id):
     try:
         event = Event.query.get_or_404(event_id)
@@ -98,42 +84,29 @@ def update_event(event_id):
             if status.label != label:
                 change_history(event)  # changement status -> event_status_history stocke le nouveau
 
-            new_manager = Person.query.filter_by(last_name=last_name, first_name=first_name).first()
-            if new_manager is None:
-                new_manager = Person(last_name=last_name, first_name=first_name)
-                db.session.add(new_manager)
-                db.session.commit()
-            event.item_manager = new_manager.id
-
-            new_location = Location.query.filter_by(address=address, city=city, room=room).first()
-            if new_location is None:
-                new_location = Location(id=db.session.query(func.max(Location.id) + 1), address=address, city=city,
-                                        room=room)
-                db.session.add(new_location)
-                db.session.commit()
-            event.location_id = new_location.id
+            event.item_manager = get_manager_id(last_name, first_name)
+            event.location_id = get_location_id(address, city, room)
 
             db.session.commit()
             return make_response(jsonify({'message': 'Event updated'}), 200)
         
         return make_response(jsonify({'message': 'Event not found'}), 404)
-    except:
-        return make_response(jsonify({'message': 'Error updating event'}), 500)
+    except Exception as e:
+        return make_response(jsonify({'message': f'Error updating event, {e}'}), 500)
 
 
-@app.route('/events/delete/<int:event_id>', methods=['DELETE'])
+@app.route('/events/<int:event_id>/', methods=['DELETE'])
 def delete_event(event_id):
     try:
         event = Event.query.get_or_404(event_id)
-        print(event)
         if event:
             db.session.delete(event)
             db.session.commit()
             return make_response(jsonify({'message': 'Event deleted'}), 200)
 
         return make_response(jsonify({'message': 'Event not found'}), 404)
-    except:
-        return make_response(jsonify({'message': 'Error deleting event'}), 500)
+    except Exception as e:
+        return make_response(jsonify({'message': f'Error deleting event, {e}'}), 500)
 
 
 def change_history(event):

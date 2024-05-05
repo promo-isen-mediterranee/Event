@@ -24,8 +24,8 @@ def get_user_data():
     try:
         users_list = Users.query.all()
         return make_response(jsonify([user.json() for user in users_list]), 200)
-    except:
-        return make_response(jsonify({'message': 'Error getting users'}), 500)
+    except Exception as e:
+        return make_response(jsonify({'message': f'Error getting users, {e}'}), 500)
 
 
 @app.route('/users/<int:id>/')

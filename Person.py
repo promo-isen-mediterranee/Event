@@ -26,11 +26,21 @@ def get_person_data():
     try:
         person_list = Person.query.all()
         return make_response(jsonify([person.json() for person in person_list]), 200)
-    except:
-        return make_response(jsonify({'message': 'Error getting persons'}), 500)
+    except Exception as e:
+        return make_response(jsonify({'message': f'Error getting persons, {e}'}), 500)
 
 
 @app.route('/person/<uuid:id>/')
 def person(id):
     person = Person.query.get_or_404(id)
     return person.json()
+
+def get_manager_id(last_name, first_name):
+    manager = Person.query.filter_by(last_name=last_name, first_name=first_name).first()
+    if manager is None:
+        new_manager = Person(last_name=last_name, first_name=first_name)
+        db.session.add(new_manager)
+        db.session.commit()
+        return new_manager.id
+    else:
+        return manager.id

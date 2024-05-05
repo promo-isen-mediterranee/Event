@@ -36,8 +36,8 @@ def get_event_history_data():
     try:
         history_list = Event_status_history.query.all()
         return make_response(jsonify([event.json() for event in history_list]), 200)
-    except:
-        return make_response(jsonify({'message': 'error getting history'}), 500)
+    except Exception as e:
+        return make_response(jsonify({'message': f'Error getting history, {e}'}), 500)
 
 
 @app.route('/events_status_history/<int:id>/')

@@ -1,7 +1,8 @@
 -- Item, Location, ItemLocation
 CREATE TABLE IF NOT EXISTS item (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(50) NOT NULL
+    name VARCHAR(50) NOT NULL,
+    UNIQUE(name)
 );
 
 CREATE TABLE IF NOT EXISTS location (
@@ -128,7 +129,7 @@ INSERT INTO item_location(item_id, location_id, quantity) VALUES(2, 3, 320);
 INSERT INTO item_location(item_id, location_id, quantity) VALUES(3, 3, 20);
 INSERT INTO item_location(item_id, location_id, quantity) VALUES(4, 3, 100);
 
-INSERT INTO reserved_item(status,quantity,reserved_on,reserved_by,event_id,item_id)
-VALUES(True, 20, NOW()::timestamp(0), (SELECT id FROM Users WHERE email = 'marc.etavard@isen.yncrea.fr'), 1, 1)
+-- INSERT INTO reserved_item(status,quantity,reserved_on,reserved_by,event_id,item_id)
+-- VALUES(True, 20, NOW()::timestamp(0), (SELECT id FROM Users WHERE email = 'marc.etavard@isen.yncrea.fr'), 1, 1)
 
     

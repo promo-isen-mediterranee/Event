@@ -47,8 +47,8 @@ def get_event_data():
     try:
         event_list = Event.query.all()
         return make_response(jsonify([event.json() for event in event_list]), 200)
-    except:
-        return make_response(jsonify({'message': 'Error getting events'}), 500)
+    except Exception as e:
+        return make_response(jsonify({'message': f'Error getting events, {e}'}), 500)
 
 
 @app.route('/events/<int:id>/')

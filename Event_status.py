@@ -22,8 +22,8 @@ def get_status_data():
     try:
         event__status_list = Event_status.query.all()
         return make_response(jsonify([status.json() for status in event__status_list]), 200)
-    except:
-        return make_response(jsonify({'message': 'Error getting status'}), 500)
+    except Exception as e:
+        return make_response(jsonify({'message': f'Error getting status, {e}'}), 500)
 
 
 @app.route('/events_status/<int:id>/')

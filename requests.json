@@ -1,5 +1,5 @@
 {
-  "/events/create": {
+  "POST /events": {
     "name": "Salon Studyrama 78",
     "stand_size": 45,
     "contact_objective": 100,
@@ -10,7 +10,7 @@
     "city": "Toulon",
     "room": "457"
   },
-  "/events/update/1": {
+  "PUT /events/1": {
     "stand_size": 150,
     "contact_objective": 200,
     "date_event": "2024-02-09",
