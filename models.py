@@ -10,15 +10,6 @@ class Users(db.Model):
     id = db.Column(UUID, primary_key=True, unique=True, nullable=False, default=uuid.uuid4)
     email = db.Column(db.String(30), nullable=False)
 
-    def __repr__(self):
-        return f'<User {self.email}>'
-
-    def json(self):
-        return {
-            'id': self.id,
-            'email': self.email,
-        }
-
 
 class Person(db.Model):
     __tablename__ = "person"
@@ -26,16 +17,6 @@ class Person(db.Model):
     id = db.Column(UUID, primary_key=True, nullable=False, default=uuid.uuid4)
     last_name = db.Column(db.String(50), nullable=False)
     first_name = db.Column(db.String(50), nullable=False)
-
-    def __repr__(self):
-        return f'<Person {self.first_name}>'
-
-    def json(self):
-        return {
-            'id': self.id,
-            'last_name': self.last_name,
-            'first_name': self.first_name
-        }
     
 
 class Location(db.Model):
@@ -46,32 +27,12 @@ class Location(db.Model):
     city = db.Column(db.String(100), nullable=False)
     room = db.Column(db.String(10), nullable=True)
 
-    def __repr__(self):
-        return f'<Location {self.city}>'
-
-    def json(self):
-        return {
-            'id': self.id,
-            'address': self.address,
-            'city': self.city,
-            'room': self.room,
-        }
-
 
 class Event_status(db.Model):
     __tablename__ = "event_status"
 
     id = db.Column(db.Integer, primary_key=True)
     label = db.Column(db.String(30), nullable=False)
-
-    def __repr__(self):
-        return f'<Event_status {self.label}>'
-
-    def json(self):
-        return {
-            'id': self.id,
-            'label': self.label,
-        }
     
 
 class Event(db.Model):
@@ -90,9 +51,6 @@ class Event(db.Model):
     r_stat = db.relationship(Event_status, backref="event_status", cascade="save-update")
     r_loc = db.relationship(Location, backref="location", cascade="save-update")
     r_item_manager = db.relationship(Person, backref="person", cascade="save-update")
-
-    def __repr__(self):
-        return f'<Event {self.name}>'
 
     def json(self):
         loc = Location.query.filter_by(id=self.location_id).first()
@@ -128,9 +86,6 @@ class Event_status_history(db.Model):
     r_event_history = db.relationship(Event, backref="event_history", cascade="save-update, delete")
     r_stat_history = db.relationship(Event_status, backref="event_status_history", cascade="save-update")
     r_user_history = db.relationship(Users, backref="users_history", cascade="save-update")
-
-    def __repr__(self):
-        return f'<Event_status_history {self.set_on}>'
 
     def json(self):
         return {

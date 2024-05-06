@@ -27,7 +27,7 @@ def get_events_by_status(event_status):
         event_list = Event.query.filter_by(status_id=status_id).all()
         return [event.json() for event in event_list], 200
     # except Unauthorized as e:
-    #     return make_response(jsonify({f'Utilisateur non authentifié, {e}'}), 401)
+    #     return f'Utilisateur non authentifié, {e}', 401
     except NotFound as e:
         return f'Aucun evenement trouvé, {e}', 404
     except KeyError as e:
