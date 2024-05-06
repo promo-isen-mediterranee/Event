@@ -1,4 +1,4 @@
-from app import db, app, make_response, jsonify
+from app import db, app
 from Location import Location
 from Event_status import Event_status
 from Person import Person
@@ -52,13 +52,13 @@ class Event(db.Model):
 def get_event_data():
     try:
         event_list = Event.query.all()
-        return make_response(jsonify([event.json() for event in event_list]), 200)
+        return [event.json() for event in event_list], 200
     except Exception as e:
-        return make_response(jsonify({'message': f'Error getting events, {e}'}), 500)
+        return f'Error getting events, {e}', 500
 
 
 @app.route('/event/<int:id>/')
-def event(id):
+def get_event(id):
     event = Event.query.get_or_404(id)
     return event.json()
 
@@ -68,12 +68,12 @@ def get_events_by_status(event_status):
     try:
         status_id = Event_status.query.filter_by(label=event_status).first().id
         event_list = Event.query.filter_by(status_id=status_id).all()
-        return make_response(jsonify([event.json() for event in event_list]), 200)
+        return [event.json() for event in event_list], 200
     # except Unauthorized as e:
     #     return make_response(jsonify({f'Utilisateur non authentifié, {e}'}), 401)
     except NotFound as e:
-        return make_response(jsonify({f'Aucun evenement trouvé, {e}'}), 404)
+        return f'Aucun evenement trouvé, {e}', 404
     except KeyError as e:
-        return make_response(jsonify({f'Le statut fourni est incorrect, {e}'}), 400)
+        return f'Le statut fourni est incorrect, {e}', 400
     except Exception as e:
-        return make_response(jsonify({'message': f'Error getting items location using item id, {e}'}), 500)
+        return f'Error getting items location using item id, {e}', 500

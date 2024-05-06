@@ -1,5 +1,5 @@
 {
-  "POST1 /event/create": {
+  "POST /event/create": {
     "name": "Salon Studyrama 78",
     "stand_size": 45,
     "contact_objective": 100,
@@ -15,29 +15,41 @@
       "room": "457"
     }
   },
-  "POST2 /event/create": {
-    "name": "Salon Studyrama 111111",
-    "date_start": "2024-05-11",
-    "date_end": "2024-05-08",
-    "item_manager": {
-      "last_name": "OLIVIER",
-      "first_name": "Alëx"
-    },
+  "POSTmini /event/create": {
+    "name": "Salon Studyrama 718",
+    "date_start": "2024-02-08",
+    "date_end": "2024-02-08",
     "location": {
       "address": "Place Georges Pompidou",
       "city": "Toulon"
     }
   },
   "PUT /events/1": {
-    "stand_size": 150,
-    "contact_objective": 200,
+    "name": "Salon Studyrama",
+    "stand_size": 50,
+    "contact_objective": 150,
+    "status": {
+      "label": "Pret"
+    },
+    "item_manager": {
+      "last_name": "OLIVIER",
+      "first_name": "Alëx"
+    },
     "date_start": "2024-02-09",
     "date_end": "2024-02-12",
-    "label": "Recupere",
-    "last_name": "ETAVARD",
-    "first_name": "Marc",
-    "address": "Place Georges Pompidou",
-    "city": "Toulon",
-    "room": "458"
+    "location": {
+      "address": "Place Georges Pompidou",
+      "city": "Toulon",
+      "room": "460"
+    }
+  },
+  "PUTmini /events/1": {
+    "name": "Salon Studyrama",
+    "date_start": "2024-02-09",
+    "date_end": "2024-02-12",
+    "location": {
+      "address": "Place Georges Pompidou",
+      "city": "Toulon"
+    }
   }
 }

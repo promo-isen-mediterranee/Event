@@ -1,4 +1,4 @@
-from app import db, app, make_response, jsonify
+from app import db
 
 
 class Event_status(db.Model):
@@ -15,3 +15,7 @@ class Event_status(db.Model):
             'id': self.id,
             'label': self.label,
         }
+    
+def get_status_id(label):
+    status = Event_status.query.filter_by(label=label).first()
+    return status.id

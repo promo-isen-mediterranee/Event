@@ -1,8 +1,9 @@
 from sqlalchemy.dialects.postgresql import UUID
-from app import db, app, make_response, jsonify
+from app import db, app
 from Event_status import Event_status
 from Event import Event
 from Users import Users
+from werkzeug.exceptions import NotFound
 
 
 class Event_status_history(db.Model):
@@ -31,16 +32,13 @@ class Event_status_history(db.Model):
         }
 
 
-@app.route('/events_status_history')
-def get_event_history_data():
+@app.route('/event/history/<int:event_id>/')
+def get_event_history(event_id):
     try:
-        history_list = Event_status_history.query.all()
-        return make_response(jsonify([event.json() for event in history_list]), 200)
+        event = Event.query.get_or_404(event_id)
+        event_status_history = Event_status_history.query.filter_by(event_id=event_id).all()
+        return [event.json(), [history.json() for history in event_status_history]]
+    except NotFound as e:
+        return f'Aucun evenement trouvé, {e}', 404
     except Exception as e:
-        return make_response(jsonify({'message': f'Error getting history, {e}'}), 500)
-
-
-@app.route('/events_status_history/<int:id>/')
-def event_history(id):
-    event_status_history = Event_status_history.query.get_or_404(id)
-    return event_status_history.json()
+        return f'Error getting items location using item id, {e}', 500
