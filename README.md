@@ -13,3 +13,4 @@ Le fichier requetes.json contient un exemple des requêtes POST et PUT pour la c
 Packages nécessaires : 
 ```pip install flask_sqlalchemy ```
 ```pip install psycopg2-binary```
+```pip install flask sqlalchemy```
