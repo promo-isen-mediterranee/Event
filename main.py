@@ -1,5 +1,6 @@
 from flask import request, jsonify, make_response
 from sqlalchemy.sql.expression import func, text
+from werkzeug.exceptions import Unauthorized, Forbidden, NotFound
 
 from app import db, app
 from Event import Event
@@ -11,20 +12,25 @@ from Event_status import Event_status
 
 
 
-@app.route('/events', methods=['POST'])
+@app.route('/event/create', methods=['POST'])
 def create_event():
     try:
         request_form = request.get_json()
-
         name = request_form['name']
-        stand_size = int(request_form['stand_size'])
-        contact_objective = int(request_form['contact_objective'])
-        date_event = request_form['date_event']
-        last_name = request_form['last_name']
-        first_name = request_form['first_name']
-        address = request_form['address']
-        city = request_form['city']
-        room = request_form['room']
+        stand_size=0 if 'stand_size' not in request_form else int(request_form['stand_size'])
+        # valeur par défaut si contact_objective pas spécifié : 100
+        contact_objective=100 if 'contact_objective' not in request_form else int(request_form['contact_objective'])
+        date_start = request_form['date_start']
+        date_end = request_form['date_end']
+
+        item_manager = request_form['item_manager']
+        last_name = item_manager['last_name']
+        first_name = item_manager['first_name']
+
+        location = request_form['location']
+        address = location['address']
+        city = location['city']
+        room = '' if 'room' not in location else location['room']
 
         last_name = last_name.upper()
         first_name = first_name[0].upper() + first_name[1:].lower()
@@ -39,7 +45,8 @@ def create_event():
                     name=name,
                     stand_size=stand_size,
                     contact_objective=contact_objective,
-                    date_event=date_event,
+                    date_start=date_start,
+                    date_end=date_end,
                     status_id= Event_status.query.filter_by(label='A faire').first().id,
                     item_manager=item_manager,
                     location_id=location_id)
@@ -49,11 +56,18 @@ def create_event():
 
         return make_response(jsonify({'message': 'Event created'}), 201)
 
-    except Exception as e:
-        return make_response(jsonify({'message': f'Error creating event, {e}'}), 500)
+    # except Unauthorized as e:
+    #     return make_response(jsonify({f'Utilisateur non authentifié, {e}'}), 401)
+    # except Forbidden as e:
+        # return make_response(jsonify({f'Droits non suffisants, {e}'}), 403)
+    except KeyError as e:
+        return make_response(jsonify({f'La requête est incomplète, {e} manquant'}), 400)
+    # except Exception as e:
+    #     return make_response(jsonify({'message': f'Error creating event, {e}'}), 500)
 
 
-@app.route('/events/<int:event_id>/', methods=['PUT'])
+
+@app.route('/event/<int:event_id>/', methods=['PUT'])
 def update_event(event_id):
     try:
         event = Event.query.get_or_404(event_id)
@@ -62,7 +76,8 @@ def update_event(event_id):
             request_form = request.get_json()
             stand_size = int(request_form['stand_size'])
             contact_objective = int(request_form['contact_objective'])
-            date_event = request_form['date_event']
+            date_start = request_form['date_start']
+            date_end = request_form['date_end']
             label = request_form['label']
             last_name = request_form['last_name']
             first_name = request_form['first_name']
@@ -76,7 +91,8 @@ def update_event(event_id):
 
             event.stand_size = stand_size
             event.contact_objective = contact_objective
-            event.date_event = date_event
+            event.date_start = date_start
+            event.date_end = date_end
 
             new_status = Event_status.query.filter_by(label=label).first()  # TODO menu deroulant avec les 6 status
             event.status_id = new_status.id
@@ -95,7 +111,7 @@ def update_event(event_id):
         return make_response(jsonify({'message': f'Error updating event, {e}'}), 500)
 
 
-@app.route('/events/<int:event_id>/', methods=['DELETE'])
+@app.route('/event/<int:event_id>/', methods=['DELETE'])
 def delete_event(event_id):
     try:
         event = Event.query.get_or_404(event_id)
@@ -104,7 +120,7 @@ def delete_event(event_id):
             db.session.commit()
             return make_response(jsonify({'message': 'Event deleted'}), 200)
 
-        return make_response(jsonify({'message': 'Event not found'}), 404)
+        return make_response(jsonify({'message': 'Event not found'}), 404)        
     except Exception as e:
         return make_response(jsonify({'message': f'Error deleting event, {e}'}), 500)
 

@@ -1,19 +1,38 @@
 {
-  "POST /events": {
+  "POST1 /event/create": {
     "name": "Salon Studyrama 78",
     "stand_size": 45,
     "contact_objective": 100,
-    "date_event": "2024-02-08",
-    "last_name": "OLIVIER",
-    "first_name": "Alëx",
-    "address": "Place Georges Pompidou",
-    "city": "Toulon",
-    "room": "457"
+    "date_start": "2024-02-08",
+    "date_end": "2024-02-08",
+    "item_manager": {
+      "last_name": "OLIVIER",
+      "first_name": "Alëx"
+    },
+    "location": {
+      "address": "Place Georges Pompidou",
+      "city": "Toulon",
+      "room": "457"
+    }
+  },
+  "POST2 /event/create": {
+    "name": "Salon Studyrama 111111",
+    "date_start": "2024-05-11",
+    "date_end": "2024-05-08",
+    "item_manager": {
+      "last_name": "OLIVIER",
+      "first_name": "Alëx"
+    },
+    "location": {
+      "address": "Place Georges Pompidou",
+      "city": "Toulon"
+    }
   },
   "PUT /events/1": {
     "stand_size": 150,
     "contact_objective": 200,
-    "date_event": "2024-02-09",
+    "date_start": "2024-02-09",
+    "date_end": "2024-02-12",
     "label": "Recupere",
     "last_name": "ETAVARD",
     "first_name": "Marc",
