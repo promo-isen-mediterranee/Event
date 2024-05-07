@@ -2,6 +2,7 @@
 CREATE TABLE IF NOT EXISTS item (
     id SERIAL PRIMARY KEY,
     name VARCHAR(50) NOT NULL,
+    category VARCHAR(50) NOT NULL,
     UNIQUE(name)
 );
 
@@ -60,7 +61,7 @@ CREATE TABLE IF NOT EXISTS event (
     location_id INT REFERENCES location(id) ON UPDATE CASCADE,
     item_manager uuid REFERENCES person(id) ON UPDATE CASCADE,
     CONSTRAINT check_dates_event CHECK (date_start <= date_end),
-    CONSTRAINT check_dates_now CHECK (date_start >= NOW()),
+    CONSTRAINT check_dates_now CHECK (date(date_start) >= date(NOW())),
     UNIQUE(name, date_start, date_end, location_id)
 );
 
@@ -122,10 +123,10 @@ VALUES('Salon étudiant Studyrama', 150, 75, '2024-5-11', '2024-5-14', 1,
        (SELECT id FROM person WHERE last_name = 'OLIVIER'),
        (SELECT id FROM location WHERE city = 'Marseille'));
 
-INSERT INTO item(name) VALUES('Brochures Puissance Alpha Générale');
-INSERT INTO item(name) VALUES('Brochures Puissance Alpha Bachelors');
-INSERT INTO item(name) VALUES('Brochures Ecole FISE');
-INSERT INTO item(name) VALUES('Echarpes RDD 2024');
+INSERT INTO item(name, category) VALUES('Brochures Puissance Alpha Générale','Brochures');
+INSERT INTO item(name, category) VALUES('Brochures Puissance Alpha Bachelors', 'Brochures');
+INSERT INTO item(name, category) VALUES('Brochures Ecole FISE', 'Brochures');
+INSERT INTO item(name, category) VALUES('Echarpes RDD 2024', 'Echarpes');
 
 INSERT INTO item_location(item_id, location_id, quantity) VALUES(1, 3, 280);
 INSERT INTO item_location(item_id, location_id, quantity) VALUES(1, 2, 100);

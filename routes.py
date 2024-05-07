@@ -5,19 +5,19 @@ from werkzeug.exceptions import NotFound, BadRequest
 from sqlalchemy.sql.expression import func
 
 
-@app.route('/event')
-def get_event_data():
+@app.route('/event/<int:eventId>/')
+def get_event(eventId):
     try:
-        event_list = Event.query.all()
-        return [event.json() for event in event_list], 200
+        event = Event.query.get_or_404(eventId)
+        return event.json()
+    # except Unauthorized as e:
+    #     return f'Utilisateur non authentifié, {e}', 401
+    except NotFound as e:
+        return f'Aucun evenement trouvé, {e}', 404
+    except KeyError as e:
+        return f'L ID fourni est incorrect, {e}', 400
     except Exception as e:
-        return f'Error getting events, {e}', 500
-
-
-@app.route('/event/<int:id>/')
-def get_event(id):
-    event = Event.query.get_or_404(id)
-    return event.json()
+        return f'Erreur lors de la récupération des évènements, {e}', 500
 
 
 @app.route('/event/<string:event_status>')
@@ -36,11 +36,11 @@ def get_events_by_status(event_status):
         return f'Error getting items location using item id, {e}', 500
 
 
-@app.route('/event/history/<int:event_id>/')
-def get_event_history(event_id):
+@app.route('/event/history/<int:eventId>/')
+def get_event_history(eventId):
     try:
-        event = Event.query.get_or_404(event_id)
-        event_status_history = Event_status_history.query.filter_by(event_id=event_id).all()
+        event = Event.query.get_or_404(eventId)
+        event_status_history = Event_status_history.query.filter_by(event_id=eventId).all()
         return [event.json(), [history.json() for history in event_status_history]]
     except NotFound as e:
         return f'Aucun evenement trouvé, {e}', 404
@@ -52,7 +52,7 @@ def get_event_history(event_id):
 @app.route('/event/create', methods=['POST'])
 def create_event():
     try:
-        request_form = request.get_json()
+        request_form = request.form
         name = request_form['name']
         stand_size=0 if 'stand_size' not in request_form else int(request_form['stand_size'])
         # valeur par défaut si contact_objective pas spécifié : 100
@@ -60,24 +60,20 @@ def create_event():
         date_start = request_form['date_start']
         date_end = request_form['date_end']
 
-        if 'item_manager' in request_form:
-            item_manager = request_form['item_manager']
-            last_name = item_manager['last_name']
-            first_name = item_manager['first_name']
+        if 'item_manager.first_name' in request_form and 'item_manager.last_name' in request_form:
+            last_name = request_form['item_manager.last_name']
+            first_name = request_form['item_manager.first_name']
         else:
             last_name='A'
             first_name='Definir'
-
-        if 'status' in request_form:
-            status = request_form['status']
-            label = status['label']
+        if 'status.label' in request_form:
+            label = request_form['status.label']
         else:
             label = 'A faire'
 
-        location = request_form['location']
-        address = location['address']
-        city = location['city']
-        room = '' if 'room' not in location else location['room']
+        address = request_form['location.address']
+        city = request_form['location.city']
+        room = request_form['location.room'] if 'location.room' else ''
 
         item_manager = get_manager_id(last_name, first_name)
         location_id = get_location_id(address, city, room)
@@ -109,13 +105,13 @@ def create_event():
         return f'Erreur lors de la création de l evenement : {e}', 500
 
 
-@app.route('/event/<int:event_id>/', methods=['PUT'])
-def update_event(event_id):
+@app.route('/event/<int:eventId>/', methods=['PUT'])
+def update_event(eventId):
     try:
-        event = Event.query.get_or_404(event_id)
+        event = Event.query.get_or_404(eventId)
         prev_status = Event_status.query.get_or_404(event.status_id)
         if event:
-            request_form = request.get_json()
+            request_form = request.form
 
             name = request_form['name']
             date_start = request_form['date_start']
@@ -128,25 +124,21 @@ def update_event(event_id):
                 event.stand_size = int(request_form['stand_size'])
             if 'contact_objective' in request_form:
                 event.contact_objective = int(request_form['contact_objective'])
-            if 'status' in request_form:
-                status = request_form['status']
-                label = status['label']
+            if 'status.label' in request_form:
+                label = request_form['status.label']
                 new_status = Event_status.query.filter_by(label=label).first()
                 event.status_id = new_status.id
-                print(prev_status.label, label)
                 if prev_status.label != label:
                     change_history(event)  # changement status -> event_status_history stocke le nouveau
             
-            if 'item_manager' in request_form:
-                item_manager = request_form['item_manager']
-                last_name = item_manager['last_name']
-                first_name = item_manager['first_name']
+            if 'item_manager.first_name' in request_form and 'item_manager.last_name' in request_form:
+                last_name = request_form['item_manager.last_name']
+                first_name = request_form['item_manager.first_name']
                 event.item_manager = get_manager_id(last_name, first_name)
-            if 'location' in request_form:
-                location = request_form['location']
-                address = location['address']
-                city = location['city']
-                room = '' if 'room' not in location else location['room']
+            if 'location.address' in request_form and 'location.city' in request_form:
+                address = request_form['location.address']
+                city = request_form['location.city']
+                room = request_form['location.room'] if 'location.room' else ''
                 event.location_id = get_location_id(address, city, room)
 
             db.session.commit()
@@ -162,10 +154,10 @@ def update_event(event_id):
         return f'Erreur mise à jour de l évènement, {e} manquant', 500
 
 
-@app.route('/event/<int:event_id>/', methods=['DELETE'])
-def delete_event(event_id):
+@app.route('/event/<int:eventId>/', methods=['DELETE'])
+def delete_event(eventId):
     try:
-        event = Event.query.get_or_404(event_id)
+        event = Event.query.get_or_404(eventId)
         if event:
             db.session.delete(event)
             db.session.commit()
@@ -178,5 +170,5 @@ def delete_event(event_id):
     except BadRequest as e:
         return f'ID fourni incorrect, {e}', 400
     except Exception as e:
-        return f'Error deleting event, {e}', 500
+        return f'Erreur suppression event, {e}', 500
 
