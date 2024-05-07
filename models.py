@@ -127,7 +127,7 @@ def change_history(event):
     history = Event_status_history(status_id=event.status_id,
                                    event_id=event.id,
                                    set_on=func.now().op('AT TIME ZONE')(text("'Europe/Paris'")),
-                                   set_by=Users.query.filter_by(email="marc.etavard@isen.yncrea.fr").first().id
+                                   set_by=Users.query.filter_by(email="definir.a@isen.yncrea.fr").first().id
                                    # TODO -> current user
                                    )
     db.session.add(history)
