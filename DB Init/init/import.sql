@@ -59,6 +59,8 @@ CREATE TABLE IF NOT EXISTS event (
     status_id INT REFERENCES event_status(id) ON UPDATE CASCADE,
     location_id INT REFERENCES location(id) ON UPDATE CASCADE,
     item_manager uuid REFERENCES person(id) ON UPDATE CASCADE,
+    CONSTRAINT check_dates_event CHECK (date_start <= date_end),
+    CONSTRAINT check_dates_now CHECK (date_start >= NOW()),
     UNIQUE(name, date_start, date_end, location_id)
 );
 
@@ -112,11 +114,11 @@ INSERT INTO event_status(label) VALUES ('Receptionne');
 INSERT INTO event_status(label) VALUES ('Fini');
 
 INSERT INTO event(name, stand_size, contact_objective, date_start, date_end, status_id, item_manager, location_id) 
-VALUES('Salon étudiant Studyrama', 100, 50, TIMESTAMP '2024-2-8', TIMESTAMP '2024-2-8', 1,
+VALUES('Salon étudiant Studyrama', 100, 50, NOW()::timestamptz(0), NOW()::timestamptz(0), 1,
        (SELECT id FROM person WHERE last_name = 'ETAVARD'),
        (SELECT id FROM location WHERE city = 'Toulon' AND room = '007'));
 INSERT INTO event(name, stand_size, contact_objective, date_start, date_end, status_id, item_manager, location_id) 
-VALUES('Salon étudiant Studyrama', 150, 75, '2024-5-6', '2024-5-11', 1,
+VALUES('Salon étudiant Studyrama', 150, 75, '2024-5-11', '2024-5-14', 1,
        (SELECT id FROM person WHERE last_name = 'OLIVIER'),
        (SELECT id FROM location WHERE city = 'Marseille'));
 
