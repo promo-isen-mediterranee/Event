@@ -73,14 +73,15 @@ def create_event():
 
         address = request_form['location.address']
         city = request_form['location.city']
-        room = request_form['location.room'] if 'location.room' else ''
+        room = request_form['location.room'] if 'location.room' in request_form else ''
 
         item_manager = get_manager_id(last_name, first_name)
         location_id = get_location_id(address, city, room)
         status_id = get_status_id(label)
 
+        new_id = db.session.query(func.max(Event.id) + 1).first()[0]
 
-        event = Event(id=db.session.query(func.max(Event.id) + 1),
+        event = Event(id=new_id,
                     name=name,
                     stand_size=stand_size,
                     contact_objective=contact_objective,
@@ -89,7 +90,7 @@ def create_event():
                     status_id= status_id,
                     item_manager=item_manager,
                     location_id=location_id)
-
+        
         db.session.add(event)
         db.session.commit()
 
@@ -138,7 +139,7 @@ def update_event(eventId):
             if 'location.address' in request_form and 'location.city' in request_form:
                 address = request_form['location.address']
                 city = request_form['location.city']
-                room = request_form['location.room'] if 'location.room' else ''
+                room = request_form['location.room'] if 'location.room' in request_form else ''
                 event.location_id = get_location_id(address, city, room)
 
             db.session.commit()
