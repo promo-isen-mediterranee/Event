@@ -17,7 +17,14 @@ class Person(db.Model):
     id = db.Column(UUID, primary_key=True, nullable=False, default=uuid.uuid4)
     last_name = db.Column(db.String(50), nullable=False)
     first_name = db.Column(db.String(50), nullable=False)
-    
+
+
+class Event_status(db.Model):
+    __tablename__ = "event_status"
+
+    id = db.Column(db.Integer, primary_key=True)
+    label = db.Column(db.String(30), nullable=False)
+
 
 class Location(db.Model):
     __tablename__ = "location"
@@ -26,14 +33,11 @@ class Location(db.Model):
     address = db.Column(db.String(100), nullable=False)
     city = db.Column(db.String(100), nullable=False)
     room = db.Column(db.String(10), nullable=True)
-
-
-class Event_status(db.Model):
-    __tablename__ = "event_status"
-
-    id = db.Column(db.Integer, primary_key=True)
-    label = db.Column(db.String(30), nullable=False)
-    
+    def json(self):
+        return {"id": self.id,
+                "address": self.address,
+                "city": self.city,
+                "room": self.room} 
 
 class Event(db.Model):
     __tablename__ = "event"

@@ -1,8 +1,26 @@
 from app import db, app
 from flask import request
-from models import Event, Event_status, Event_status_history, get_manager_id, change_history, get_location_id, get_status_id
+from models import Event, Event_status, Event_status_history, Location, get_manager_id, change_history, get_location_id, get_status_id
 from werkzeug.exceptions import NotFound, BadRequest
 from sqlalchemy.sql.expression import func
+
+
+@app.route('/event/location/getAll')
+def get_locations():
+    try:
+        locations = Location.query.all()
+        return [location.json() for location in locations]
+    except Exception as e:
+        return f'Erreur lors de la récupération des emplacements, {e}', 500
+    
+
+@app.route('/event/getAll')
+def get_events():
+    try:
+        events = Event.query.all()
+        return [event.json() for event in events]
+    except Exception as e:
+        return f'Erreur lors de la récupération des évènements, {e}', 500
 
 
 @app.route('/event/<int:eventId>/')
@@ -17,7 +35,7 @@ def get_event(eventId):
     except KeyError as e:
         return f'L ID fourni est incorrect, {e}', 400
     except Exception as e:
-        return f'Erreur lors de la récupération des évènements, {e}', 500
+        return f'Erreur lors de la récupération de l évènement, {e}', 500
 
 
 @app.route('/event/<string:event_status>')
@@ -51,7 +69,7 @@ def get_event_history(eventId):
 
 @app.route('/event/create', methods=['POST'])
 def create_event():
-    try:
+    # try:
         request_form = request.form
         name = request_form['name']
         stand_size=0 if 'stand_size' not in request_form else int(request_form['stand_size'])
@@ -102,8 +120,8 @@ def create_event():
         # return ({f'Droits non suffisants, {e}'}), 403)
     # except KeyError:
     #     return ({f'La requête est incomplète'}), 400)
-    except Exception as e:
-        return f'Erreur lors de la création de l evenement : {e}', 500
+    # except Exception as e:
+    #     return f'Erreur lors de la création de l evenement : {e}', 500
 
 
 @app.route('/event/<int:eventId>/', methods=['PUT'])
