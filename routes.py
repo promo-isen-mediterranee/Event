@@ -1,6 +1,6 @@
 from app import db, app
 from flask import request
-from models import Event, Event_status, Event_status_history, Location, get_manager_id, change_history, get_location_id, get_status_id
+from models import Event, Event_status, Event_status_history, Location, get_manager_id, change_history, get_location_id, get_status_id, empty
 from werkzeug.exceptions import NotFound, BadRequest
 from sqlalchemy.sql.expression import func
 
@@ -93,7 +93,7 @@ def create_event():
         city = request_form['location.city']
         room = request_form['location.room'] if 'location.room' in request_form else ''
 
-        if name == "" or date_start == "" or date_end == "" or address =="" or city =="":
+        if empty(name) or empty(date_start) or empty(date_end) or empty(address) or empty(city):
             return 'Erreur lors de la création d évènement, informations manquantes ou erronées', 400
 
         item_manager = get_manager_id(last_name, first_name)
@@ -138,7 +138,7 @@ def update_event(eventId):
             name = request_form['name']
             date_start = request_form['date_start']
             date_end = request_form['date_end']
-            if name == "" or date_start == "" or date_end == "":
+            if empty(name) or empty(date_start) or empty(date_end):
                 return 'Erreur lors de la mise à jour d évènement, informations erronées', 400
             
             event.name = name
@@ -163,7 +163,7 @@ def update_event(eventId):
             if 'location.address' in request_form and 'location.city' in request_form:
                 address = request_form['location.address']
                 city = request_form['location.city']
-                if address == "" or city == "":
+                if empty(address) or empty(city):
                     return 'Erreur lors de la mise à jour d évènement, informations erronées', 400
                 room = request_form['location.room'] if 'location.room' in request_form else ''
                 event.location_id = get_location_id(address, city, room)
