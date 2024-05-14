@@ -11,3 +11,6 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 CORS(app)
 db = SQLAlchemy(app)
+
+if __name__ == "__main__":
+    app.run()
