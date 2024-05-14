@@ -92,7 +92,7 @@ def create_event():
         address = request_form['location.address']
         city = request_form['location.city']
         room = request_form['location.room'] if 'location.room' in request_form else ''
-
+        
         if empty(name) or empty(date_start) or empty(date_end) or empty(address) or empty(city):
             return 'Erreur lors de la création d évènement, informations manquantes ou erronées', 400
 
