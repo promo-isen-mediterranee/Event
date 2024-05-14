@@ -117,8 +117,13 @@ def get_manager_id(last_name, first_name):
 
 
 def get_location_id(address, city, room):
-    loc = Location.query.filter_by(address=address, city=city, room=room).first()
-    return loc.id
+    if empty(room):
+        loc = Location.query.filter_by(address=address, city=city).first()
+        return loc.id
+    else:
+        loc = Location.query.filter_by(address=address, city=city, room=room).first()
+        return loc.id
+
 
 def change_history(event):
     history = Event_status_history(status_id=event.status_id,
