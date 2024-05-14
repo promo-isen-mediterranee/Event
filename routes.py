@@ -93,6 +93,9 @@ def create_event():
         city = request_form['location.city']
         room = request_form['location.room'] if 'location.room' in request_form else ''
 
+        if name == "" or date_start == "" or date_end == "" or address =="" or city =="":
+            return 'Erreur lors de la création d évènement, informations manquantes ou erronées', 400
+
         item_manager = get_manager_id(last_name, first_name)
         location_id = get_location_id(address, city, room)
         status_id = get_status_id(label)
@@ -135,6 +138,9 @@ def update_event(eventId):
             name = request_form['name']
             date_start = request_form['date_start']
             date_end = request_form['date_end']
+            if name == "" or date_start == "" or date_end == "":
+                return 'Erreur lors de la mise à jour d évènement, informations erronées', 400
+            
             event.name = name
             event.date_start = date_start
             event.date_end = date_end
@@ -157,6 +163,8 @@ def update_event(eventId):
             if 'location.address' in request_form and 'location.city' in request_form:
                 address = request_form['location.address']
                 city = request_form['location.city']
+                if address == "" or city == "":
+                    return 'Erreur lors de la mise à jour d évènement, informations erronées', 400
                 room = request_form['location.room'] if 'location.room' in request_form else ''
                 event.location_id = get_location_id(address, city, room)
 
