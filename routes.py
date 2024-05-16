@@ -1,6 +1,6 @@
 from app import db, app
 from flask import request
-from models import Event, Event_status, Event_status_history, Location, get_manager_id, change_history, get_location_id, get_status_id, empty
+from models import Event, Event_status, Event_status_history, Location, get_manager_id, change_history, get_status_id, empty
 from werkzeug.exceptions import NotFound, BadRequest
 from sqlalchemy.sql.expression import func
 
@@ -89,15 +89,11 @@ def create_event():
         else:
             label = 'A faire'
 
-        address = request_form['location.address']
-        city = request_form['location.city']
-        room = request_form['location.room'] if 'location.room' in request_form else ''
-        
-        if empty(name) or empty(date_start) or empty(date_end) or empty(address) or empty(city):
+        if empty(name) or empty(date_start) or empty(date_end):
             return 'Erreur lors de la création d évènement, informations manquantes ou erronées', 400
 
         item_manager = get_manager_id(last_name, first_name)
-        location_id = get_location_id(address, city, room)
+        location_id = request_form["location.id"]
         status_id = get_status_id(label)
 
         new_id = db.session.query(func.max(Event.id) + 1).first()[0]
@@ -166,7 +162,8 @@ def update_event(eventId):
                 if empty(address) or empty(city):
                     return 'Erreur lors de la mise à jour d évènement, informations erronées', 400
                 room = request_form['location.room'] if 'location.room' in request_form else ''
-                event.location_id = get_location_id(address, city, room)
+                event.location_id = request_form["location.id"]
+
 
             db.session.commit()
             return 'Evenement mis à jour', 201
