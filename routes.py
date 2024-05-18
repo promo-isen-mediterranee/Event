@@ -12,6 +12,15 @@ def get_locations():
         return [location.json() for location in locations]
     except Exception as e:
         return f'Erreur lors de la récupération des emplacements, {e}', 500
+
+
+@app.route('/event/status/getAll')
+def get_event_status():
+    try:
+        status = Event_status.query.all()
+        return [stat.json() for stat in status]
+    except Exception as e:
+        return f'Erreur lors de la récupération des statuts, {e}', 500
     
 
 @app.route('/event/getAll')
@@ -130,13 +139,12 @@ def update_event(eventId):
         prev_status = Event_status.query.get_or_404(event.status_id)
         if event:
             request_form = request.form
-
             name = request_form['name']
             date_start = request_form['date_start']
             date_end = request_form['date_end']
+
             if empty(name) or empty(date_start) or empty(date_end):
                 return 'Erreur lors de la mise à jour d évènement, informations erronées', 400
-            
             event.name = name
             event.date_start = date_start
             event.date_end = date_end
@@ -156,13 +164,8 @@ def update_event(eventId):
                 last_name = request_form['item_manager.last_name']
                 first_name = request_form['item_manager.first_name']
                 event.item_manager = get_manager_id(last_name, first_name)
-            if 'location.address' in request_form and 'location.city' in request_form:
-                address = request_form['location.address']
-                city = request_form['location.city']
-                if empty(address) or empty(city):
-                    return 'Erreur lors de la mise à jour d évènement, informations erronées', 400
-                room = request_form['location.room'] if 'location.room' in request_form else ''
-                event.location_id = request_form["location.id"]
+            
+            event.location_id = request_form["location.id"]
 
 
             db.session.commit()

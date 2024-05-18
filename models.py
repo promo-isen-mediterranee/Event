@@ -24,6 +24,9 @@ class Event_status(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     label = db.Column(db.String(30), nullable=False)
+    def json(self):
+        return {"id": self.id,
+                "label": self.label}
 
 
 class Location(db.Model):
