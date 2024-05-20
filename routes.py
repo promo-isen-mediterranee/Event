@@ -1,9 +1,18 @@
 from app import db, app
 from flask import request
-from models import Event, Event_status, Event_status_history, Location, get_manager_id, change_history, get_status_id, empty
+from models import Event, Event_status, Event_status_history, Location, Person, get_manager_id, change_history, get_status_id, empty
 from werkzeug.exceptions import NotFound, BadRequest
 from sqlalchemy.sql.expression import func
 
+
+@app.route('/event/person/getAll')
+def get_persons():
+    try:
+        persons = Person.query.all()
+        return [person.json() for person in persons]
+    except Exception as e:
+        return f'Erreur lors de la récupération des personnes, {e}', 500
+    
 
 @app.route('/event/location/getAll')
 def get_locations():
@@ -32,7 +41,7 @@ def get_events():
         return f'Erreur lors de la récupération des évènements, {e}', 500
 
 
-@app.route('/event/<int:eventId>/')
+@app.route('/event/<int:eventId>')
 def get_event(eventId):
     try:
         event = Event.query.get_or_404(eventId)
@@ -63,7 +72,7 @@ def get_events_by_status(event_status):
         return f'Error getting items location using item id, {e}', 500
 
 
-@app.route('/event/history/<int:eventId>/')
+@app.route('/event/history/<int:eventId>')
 def get_event_history(eventId):
     try:
         event = Event.query.get_or_404(eventId)
@@ -81,9 +90,9 @@ def create_event():
     # try:
         request_form = request.form
         name = request_form['name']
-        stand_size=0 if 'stand_size' not in request_form else int(request_form['stand_size'])
+        stand_size=0 if empty(request_form["stand_size"]) else int(request_form['stand_size'])
         # valeur par défaut si contact_objective pas spécifié : 100
-        contact_objective=100 if 'contact_objective' not in request_form else int(request_form['contact_objective'])
+        contact_objective=100 if empty(request_form["contact_objective"]) else int(request_form['contact_objective'])
         date_start = request_form['date_start']
         date_end = request_form['date_end']
 
@@ -132,7 +141,7 @@ def create_event():
     #     return f'Erreur lors de la création de l evenement : {e}', 500
 
 
-@app.route('/event/<int:eventId>/', methods=['PUT'])
+@app.route('/event/<int:eventId>', methods=['PUT'])
 def update_event(eventId):
     try:
         event = Event.query.get_or_404(eventId)
@@ -149,9 +158,9 @@ def update_event(eventId):
             event.date_start = date_start
             event.date_end = date_end
 
-            if 'stand_size' in request_form:
+            if not empty(request_form['stand_size']):
                 event.stand_size = int(request_form['stand_size'])
-            if 'contact_objective' in request_form:
+            if not empty(request_form['contact_objective']):
                 event.contact_objective = int(request_form['contact_objective'])
             if 'status.label' in request_form:
                 label = request_form['status.label']
@@ -181,7 +190,7 @@ def update_event(eventId):
         return f'Erreur mise à jour de l évènement, {e} manquant', 500
 
 
-@app.route('/event/<int:eventId>/', methods=['DELETE'])
+@app.route('/event/<int:eventId>', methods=['DELETE'])
 def delete_event(eventId):
     try:
         event = Event.query.get_or_404(eventId)

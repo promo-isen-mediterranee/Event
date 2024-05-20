@@ -17,6 +17,10 @@ class Person(db.Model):
     id = db.Column(UUID, primary_key=True, nullable=False, default=uuid.uuid4)
     last_name = db.Column(db.String(50), nullable=False)
     first_name = db.Column(db.String(50), nullable=False)
+    def json(self):
+        return {"id": self.id,
+                "last_name": self.last_name,
+                "first_name": self.first_name}
 
 
 class Event_status(db.Model):
@@ -72,8 +76,8 @@ class Event(db.Model):
             'status': {"id": Event_status.query.filter_by(id=self.status_id).first().id,
                        "label": Event_status.query.filter_by(id=self.status_id).first().label},
             'item_manager': {'id': person.id,
-                             'name': person.last_name,
-                             'surname': person.first_name},
+                             'last_name': person.last_name,
+                             'first_name': person.first_name},
             'location': {'id': loc.id,
                          'address': loc.address,
                          'city': loc.city,
