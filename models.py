@@ -7,8 +7,24 @@ from sqlalchemy.sql.expression import func, text
 class Users(db.Model):
     __tablename__ = "users"
 
-    id = db.Column(UUID, primary_key=True, unique=True, nullable=False, default=uuid.uuid4)
-    email = db.Column(db.String(30), nullable=False)
+    id = db.Column(db.UUID, primary_key=True, unique=True, nullable=False, default=uuid.uuid4)
+    username = db.Column(db.String(101), nullable=False)
+    mail = db.Column(db.String(50), nullable=False)
+    nom = db.Column(db.String(50), nullable=False)
+    prenom = db.Column(db.String(50), nullable=False)
+    is_active = db.Column(db.Boolean, nullable=False, default=True)
+    is_authenticated = db.Column(db.Boolean, nullable=False, default=False)
+
+    def json(self):
+        return {
+            'id': self.id,
+            'username': self.username,
+            'mail': self.mail,
+            'nom': self.nom,
+            'prenom': self.prenom,
+            'is_active': self.is_active,
+            'is_admin': self.is_authenticated
+        }
 
 
 class Person(db.Model):
@@ -67,21 +83,21 @@ class Event(db.Model):
         loc = Location.query.filter_by(id=self.location_id).first()
         person = Person.query.filter_by(id=self.item_manager).first()
         return {
-            'id': self.id,
-            'name': self.name,
-            'stand_size': self.stand_size,
-            'contact_objective': self.contact_objective,
-            'date_start': self.date_start.strftime('%Y-%m-%d'),
-            'date_end': self.date_end.strftime('%Y-%m-%d'),
-            'status': {"id": Event_status.query.filter_by(id=self.status_id).first().id,
+            "id": self.id,
+            "name": self.name,
+            "stand_size": self.stand_size,
+            "contact_objective": self.contact_objective,
+            "date_start": self.date_start.strftime('%Y-%m-%d'),
+            "date_end": self.date_end.strftime('%Y-%m-%d'),
+            "status": {"id": Event_status.query.filter_by(id=self.status_id).first().id,
                        "label": Event_status.query.filter_by(id=self.status_id).first().label},
-            'item_manager': {'id': person.id,
-                             'last_name': person.last_name,
-                             'first_name': person.first_name},
-            'location': {'id': loc.id,
-                         'address': loc.address,
-                         'city': loc.city,
-                         'room': loc.room}
+            "item_manager": {"id": person.id,
+                             "last_name": person.last_name,
+                             "first_name": person.first_name},
+            "location": {"id": loc.id,
+                         "address": loc.address,
+                         "city": loc.city,
+                         "room": loc.room}
         }
 
 
@@ -100,11 +116,11 @@ class Event_status_history(db.Model):
 
     def json(self):
         return {
-            'id': self.id,
-            'status_id': self.status_id,
-            'event_id': self.event_id,
-            'set_on': self.set_on,
-            'set_by': self.set_by,
+            "id": self.id,
+            "status_id": self.status_id,
+            "event_id": self.event_id,
+            "set_on": self.set_on,
+            "set_by": self.set_by,
         }
 
 def get_status_id(label):
