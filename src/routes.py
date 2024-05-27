@@ -4,12 +4,12 @@ from os import environ
 from flask import request, current_app, abort, session
 from flask_login import current_user
 from sqlalchemy.sql.expression import func
-from src import login_manager, logger
-from src.database import get_db
-from src.models import Event, Event_status, Event_status_history, Location, Person, get_manager_id, change_history, \
+from .models import Event, Event_status, Event_status_history, Location, Person, get_manager_id, change_history, \
     get_status_id, empty, User_role, Role_permissions, Users
 
-db = get_db()
+db = current_app.db
+login_manager = current_app.login_manager
+logger = current_app.logger
 
 
 def response(obj=None, message=None, status_code=200):
@@ -65,49 +65,41 @@ def user_loader(userId):
 
 @current_app.errorhandler(400)
 def bad_request(e):
-    logger.exception(f'Error occurred')
     return response(message='Requête incorrecte', status_code=400)
 
 
 @current_app.errorhandler(401)
 def unauthorized(e):
-    logger.exception(f'Error occurred')
     return response(message='Non autorisé', status_code=401)
 
 
 @current_app.errorhandler(403)
 def forbidden(e):
-    logger.exception(f'Error occurred')
     return response(message='Accès interdit', status_code=403)
 
 
 @current_app.errorhandler(404)
 def page_not_found(e):
-    logger.exception(f'Error occurred')
     return response(message='Resource introuvable', status_code=404)
 
 
 @current_app.errorhandler(405)
 def method_not_allowed(e):
-    logger.exception(f'Error occurred')
     return response(message='Méthode non autorisée', status_code=405)
 
 
 @current_app.errorhandler(409)
 def conflict(e):
-    logger.exception(f'Error occurred')
     return response(message='Conflit', status_code=409)
 
 
 @current_app.errorhandler(429)
 def too_many_requests(e):
-    logger.exception(f'Error occurred')
     return response(message=e, status_code=429)
 
 
 @current_app.errorhandler(500)
 def internal_server_error(e):
-    logger.exception(f'Error occurred')
     return response(message='Erreur interne du serveur', status_code=500)
 
 

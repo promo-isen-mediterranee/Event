@@ -1,10 +1,10 @@
-from flask_login import current_user
-from src.database import get_db
 import uuid
+from flask import current_app
+from flask_login import current_user
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql.expression import func, text
 
-db = get_db()
+db = current_app.db
 
 
 class Users(db.Model):
