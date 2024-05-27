@@ -1,11 +1,12 @@
-from app import db, app
-from flask import request
-from models import Event, Event_status, Event_status_history, Location, Person, get_manager_id, change_history, get_status_id, empty
+from event.database import get_db
+from flask import request, current_app
+from event.models import Event, Event_status, Event_status_history, Location, Person, get_manager_id, change_history, get_status_id, empty
 from werkzeug.exceptions import NotFound, BadRequest
 from sqlalchemy.sql.expression import func
 
+db = get_db()
 
-@app.route('/event/person/getAll')
+@current_app.route('/event/person/getAll')
 def get_persons():
     try:
         persons = Person.query.all()
@@ -14,7 +15,7 @@ def get_persons():
         return f'Erreur lors de la récupération des personnes, {e}', 500
     
 
-@app.route('/event/location/getAll')
+@current_app.route('/event/location/getAll')
 def get_locations():
     try:
         locations = Location.query.all()
@@ -23,7 +24,7 @@ def get_locations():
         return f'Erreur lors de la récupération des emplacements, {e}', 500
 
 
-@app.route('/event/status/getAll')
+@current_app.route('/event/status/getAll')
 def get_event_status():
     try:
         status = Event_status.query.all()
@@ -32,7 +33,7 @@ def get_event_status():
         return f'Erreur lors de la récupération des statuts, {e}', 500
     
 
-@app.route('/event/getAll')
+@current_app.route('/event/getAll')
 def get_events():
     try:
         events = Event.query.all()
@@ -41,7 +42,7 @@ def get_events():
         return f'Erreur lors de la récupération des évènements, {e}', 500
 
 
-@app.route('/event/<int:eventId>')
+@current_app.route('/event/<int:eventId>')
 def get_event(eventId):
     try:
         event = Event.query.get_or_404(eventId)
@@ -56,7 +57,7 @@ def get_event(eventId):
         return f'Erreur lors de la récupération de l évènement, {e}', 500
 
 
-@app.route('/event/<string:event_status>')
+@current_app.route('/event/<string:event_status>')
 def get_events_by_status(event_status):
     try:
         status_id = Event_status.query.filter_by(label=event_status).first().id
@@ -72,7 +73,7 @@ def get_events_by_status(event_status):
         return f'Error getting items location using item id, {e}', 500
 
 
-@app.route('/event/history/<int:eventId>')
+@current_app.route('/event/history/<int:eventId>')
 def get_event_history(eventId):
     try:
         event = Event.query.get_or_404(eventId)
@@ -85,7 +86,7 @@ def get_event_history(eventId):
     
 
 
-@app.route('/event/create', methods=['POST'])
+@current_app.route('/event/create', methods=['POST'])
 def create_event():
     # try:
         request_form = request.form
@@ -141,7 +142,7 @@ def create_event():
     #     return f'Erreur lors de la création de l evenement : {e}', 500
 
 
-@app.route('/event/<int:eventId>', methods=['PUT'])
+@current_app.route('/event/<int:eventId>', methods=['PUT'])
 def update_event(eventId):
     try:
         event = Event.query.get_or_404(eventId)
@@ -190,7 +191,7 @@ def update_event(eventId):
         return f'Erreur mise à jour de l évènement, {e} manquant', 500
 
 
-@app.route('/event/<int:eventId>', methods=['DELETE'])
+@current_app.route('/event/<int:eventId>', methods=['DELETE'])
 def delete_event(eventId):
     try:
         event = Event.query.get_or_404(eventId)
