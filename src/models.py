@@ -1,9 +1,11 @@
-from event.database import get_db
+from flask_login import current_user
+from src.database import get_db
 import uuid
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql.expression import func, text
 
 db = get_db()
+
 
 class Users(db.Model):
     __tablename__ = "users"
@@ -23,8 +25,36 @@ class Users(db.Model):
             'mail': self.mail,
             'nom': self.nom,
             'prenom': self.prenom,
-            'is_active': self.is_active,
-            'is_admin': self.is_authenticated
+            'is_active': self.is_active
+        }
+
+
+class Roles(db.Model):
+    __tablename__ = "role"
+
+    id = db.Column(db.Integer, primary_key=True, unique=True, nullable=False, autoincrement=True)
+    label = db.Column(db.String(20), nullable=False)
+
+    def json(self):
+        return {
+            "id": self.id,
+            "label": self.label
+        }
+
+
+class User_role(db.Model):
+    __tablename__ = "user_role"
+
+    user_id = db.Column(db.UUID, db.ForeignKey('users.id', onupdate='CASCADE', ondelete='CASCADE'), primary_key=True)
+    role_id = db.Column(db.Integer, db.ForeignKey('role.id', onupdate='CASCADE', ondelete='CASCADE'), primary_key=True)
+
+    r_user = db.relationship(Users, backref="users_role")
+    r_role = db.relationship(Roles, backref="role")
+
+    def json(self):
+        return {
+            "user": self.r_user.json(),
+            "role": self.r_role.json()
         }
 
 
@@ -34,10 +64,13 @@ class Person(db.Model):
     id = db.Column(UUID, primary_key=True, nullable=False, default=uuid.uuid4)
     last_name = db.Column(db.String(50), nullable=False)
     first_name = db.Column(db.String(50), nullable=False)
+
     def json(self):
-        return {"id": self.id,
-                "last_name": self.last_name,
-                "first_name": self.first_name}
+        return {
+            "id": self.id,
+            "last_name": self.last_name,
+            "first_name": self.first_name
+        }
 
 
 class Event_status(db.Model):
@@ -45,9 +78,12 @@ class Event_status(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     label = db.Column(db.String(30), nullable=False)
+
     def json(self):
-        return {"id": self.id,
-                "label": self.label}
+        return {
+            "id": self.id,
+            "label": self.label
+        }
 
 
 class Location(db.Model):
@@ -57,19 +93,23 @@ class Location(db.Model):
     address = db.Column(db.String(100), nullable=False)
     city = db.Column(db.String(100), nullable=False)
     room = db.Column(db.String(10), nullable=True)
+
     def json(self):
-        return {"id": self.id,
-                "address": self.address,
-                "city": self.city,
-                "room": self.room} 
+        return {
+            "id": self.id,
+            "address": self.address,
+            "city": self.city,
+            "room": self.room
+        }
+
 
 class Event(db.Model):
-    __tablename__ = "event"
+    __tablename__ = "src"
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(265), nullable=False)
     stand_size = db.Column(db.Integer, nullable=True)
-    contact_objective = db.Column(db.Integer, nullable=False, default = 100)
+    contact_objective = db.Column(db.Integer, nullable=False, default=100)
     date_start = db.Column(db.DateTime, nullable=False)
     date_end = db.Column(db.DateTime, nullable=False)
     status_id = db.Column(db.Integer, db.ForeignKey('event_status.id'))
@@ -90,15 +130,9 @@ class Event(db.Model):
             "contact_objective": self.contact_objective,
             "date_start": self.date_start.strftime('%Y-%m-%d'),
             "date_end": self.date_end.strftime('%Y-%m-%d'),
-            "status": {"id": Event_status.query.filter_by(id=self.status_id).first().id,
-                       "label": Event_status.query.filter_by(id=self.status_id).first().label},
-            "item_manager": {"id": person.id,
-                             "last_name": person.last_name,
-                             "first_name": person.first_name},
-            "location": {"id": loc.id,
-                         "address": loc.address,
-                         "city": loc.city,
-                         "room": loc.room}
+            "status": self.r_stat.json(),
+            "item_manager": self.r_item_manager.json(),
+            "location": self.r_loc.json(),
         }
 
 
@@ -107,7 +141,7 @@ class Event_status_history(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     status_id = db.Column(db.Integer, db.ForeignKey('event_status.id'))
-    event_id = db.Column(db.Integer, db.ForeignKey('event.id'))
+    event_id = db.Column(db.Integer, db.ForeignKey('src.id'))
     set_on = db.Column(db.DateTime(timezone=True))
     set_by = db.Column(UUID, db.ForeignKey('users.id'))
 
@@ -124,6 +158,37 @@ class Event_status_history(db.Model):
             "set_by": self.set_by,
         }
 
+
+class Permissions(db.Model):
+    __tablename__ = "permission"
+
+    id = db.Column(db.Integer, primary_key=True, unique=True, nullable=False, autoincrement=True)
+    label = db.Column(db.String(20), nullable=False, unique=True)
+
+    def json(self):
+        return {
+            "id": self.id,
+            "label": self.label
+        }
+
+
+class Role_permissions(db.Model):
+    __tablename__ = "role_permission"
+
+    role_id = db.Column(db.Integer, db.ForeignKey('role.id', onupdate='CASCADE', ondelete='CASCADE'), primary_key=True)
+    permission_id = db.Column(db.Integer, db.ForeignKey('permission.id', onupdate='CASCADE', ondelete='CASCADE'),
+                              primary_key=True)
+
+    r_role = db.relationship(Roles, backref="role_permissions")
+    r_permission = db.relationship(Permissions, backref="permission")
+
+    def json(self):
+        return {
+            "role": self.r_role.json(),
+            "permission": self.r_permission.json()
+        }
+
+
 def get_status_id(label):
     status = Event_status.query.filter_by(label=label).first()
     return status.id
@@ -138,19 +203,18 @@ def get_manager_id(last_name, first_name):
         return new_manager.id
     else:
         return manager.id
-    
+
 
 def change_history(event):
-    history = Event_status_history(status_id=event.status_id,
-                                   event_id=event.id,
-                                   set_on=func.now().op('AT TIME ZONE')(text("'Europe/Paris'")),
-                                   set_by=Users.query.filter_by(email="definir.a@isen.yncrea.fr").first().id
-                                   # TODO -> current user
-                                   )
+    history = Event_status_history(
+        status_id=event.status_id,
+        event_id=event.id,
+        set_on=func.now().op('AT TIME ZONE')(text("'Europe/Paris'")),
+        set_by=current_user.id
+    )
     db.session.add(history)
     db.session.commit()
 
+
 def empty(str):
-    if str=="" or str.isspace():
-        return 1
-    return 0
+    return str == "" or str.isspace()
