@@ -139,7 +139,7 @@ class Event_status_history(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     status_id = db.Column(db.Integer, db.ForeignKey('event_status.id'))
-    event_id = db.Column(db.Integer, db.ForeignKey('src.id'))
+    event_id = db.Column(db.Integer, db.ForeignKey('event.id'))
     set_on = db.Column(db.DateTime(timezone=True))
     set_by = db.Column(UUID, db.ForeignKey('users.id'))
 
