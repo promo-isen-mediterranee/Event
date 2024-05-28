@@ -104,35 +104,33 @@ class Location(db.Model):
 
 
 class Event(db.Model):
-    __tablename__ = "src"
+    __tablename__ = "event"
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(265), nullable=False)
     stand_size = db.Column(db.Integer, nullable=True)
     contact_objective = db.Column(db.Integer, nullable=False, default=100)
-    date_start = db.Column(db.DateTime, nullable=False)
-    date_end = db.Column(db.DateTime, nullable=False)
+    date_start = db.Column(db.DateTime(timezone=True), nullable=False)
+    date_end = db.Column(db.DateTime(timezone=True), nullable=False)
     status_id = db.Column(db.Integer, db.ForeignKey('event_status.id'))
     location_id = db.Column(db.Integer, db.ForeignKey('location.id'))
-    item_manager = db.Column(UUID, db.ForeignKey('person.id'))
+    item_manager = db.Column(db.UUID, db.ForeignKey('person.id'))
 
     r_stat = db.relationship(Event_status, backref="event_status", cascade="save-update")
     r_loc = db.relationship(Location, backref="location", cascade="save-update")
     r_item_manager = db.relationship(Person, backref="person", cascade="save-update")
 
     def json(self):
-        loc = Location.query.filter_by(id=self.location_id).first()
-        person = Person.query.filter_by(id=self.item_manager).first()
         return {
-            "id": self.id,
-            "name": self.name,
-            "stand_size": self.stand_size,
-            "contact_objective": self.contact_objective,
-            "date_start": self.date_start.strftime('%Y-%m-%d'),
-            "date_end": self.date_end.strftime('%Y-%m-%d'),
-            "status": self.r_stat.json(),
-            "item_manager": self.r_item_manager.json(),
-            "location": self.r_loc.json(),
+            'id': self.id,
+            'name': self.name,
+            'stand_size': self.stand_size,
+            'contact_objective': self.contact_objective,
+            'date_start': self.date_start,
+            'date_end': self.date_end,
+            'status': self.r_stat.json(),
+            'location': self.r_loc.json(),
+            'item_manager': self.r_item_manager.json()
         }
 
 
