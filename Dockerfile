@@ -16,7 +16,7 @@ ENV SQLALCHEMY_TRACK_MODIFICATIONS=False
 # Flask
 ENV FLASK_APP=/API_Event/src/__init__.py
 ENV FLASK_RUN_HOST=0.0.0.0
-ENV FLASK_RUN_PORT=5200
+ENV FLASK_RUN_PORT=5000
 ENV SESSION_DURATION_SECONDS=900
 
 
@@ -30,14 +30,21 @@ WORKDIR /API_Event
 # Copie des fichiers de configuration
 COPY requirements.txt .
 
-# Installation des dépendances
-RUN pip install --no-cache-dir -r requirements.txt
+COPY ./pyproject.toml ./pyproject.toml
 
 # Copie du code
 COPY ./src ./src
 
-# Expose le port 5200
-EXPOSE 5200
+COPY ./README.md ./README.md
+
+# Installation des dépendances
+#RUN pip install --no-cache-dir -r requirements.txt
+
+RUN pip install -e .
+
+# Expose le port 5000
+EXPOSE 5000
 
 # Spécifie la commande à exécuter
-CMD ["flask", "run"]
+#CMD ["flask", "run"]
+CMD ["waitress-serve", "--port", "5000", "src:app"]
